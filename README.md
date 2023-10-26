@@ -158,6 +158,7 @@ cli examples:
 myenergi libbi show
 myenergi libbi mode normal
 myenergi libbi mode stop
+myenergi libbi mode export
 myenergi libbi priority 1
 myenergi libbi energy
 ```
