@@ -7,6 +7,7 @@ from .base_device import BaseDevice
 
 _LOGGER = logging.getLogger(__name__)
 
+MODE_EXPORT = 5
 MODE_NORMAL = 1
 MODE_STOPPED = 0
 
@@ -19,17 +20,27 @@ STATES = { 0:'Off',
            7:'Duration Charging',
            101:'Idle?',
            102:'102',
-           234:'Calibration Charge' }
+           104:'Battery Full?',
+           151:'FW Upgrade (ARM)',
+           156:'FW Upgrade (DSP)',
+           234:'Calibration Charge',
+           251:'FW Upgrade (DSP)',
+           252:'FW Upgrade (ARM)' }
 
-LIBBI_MODES = ["Stopped","Normal"]
-LIBBI_MODE_NAMES = ["STOP", "BALANCE"]
+LIBBI_MODES = ["Stopped","Normal","","","","Export"]
+LIBBI_MODE_NAMES = ["STOP", "BALANCE","","","","EXPORT"]
 
 class Libbi(BaseDevice):
     """Libbi Client for myenergi API."""
 
     def __init__(self, connection: Connection, serialno, data={}) -> None:
         self.history_data = {}
+        self._extra_data = {}
         super().__init__(connection, serialno, data)
+
+    async def refresh_extra(self):
+        chargeFromGrid = await self._connection.get("/api/AccountAccess/LibbiMode?serialNo=" + str(self.serial_number), oauth=True)
+        self._extra_data["charge_from_grid"] = chargeFromGrid["content"][str(self.serial_number)]
 
     @property
     def kind(self):
@@ -163,6 +174,11 @@ class Libbi(BaseDevice):
     def generated(self):
         """Solar generation from history data"""
         return self.history_data.get("generated", 0)
+    
+    @property
+    def charge_from_grid(self):
+        """Is charging from the grid enabled?"""
+        return self._extra_data.get("charge_from_grid")
 
     @property
     def prefix(self):
@@ -170,12 +186,13 @@ class Libbi(BaseDevice):
 
 
     async def set_operating_mode(self, mode: str):
-        """Stopped or normal mode"""
+        """Stopped or normal mode or export to Grid"""
         print("current mode", self._data["lmo"])
         mode_int = LIBBI_MODES.index(mode.capitalize())
+        print(mode_int)
         await self._connection.get(
             f"/cgi-libbi-mode-{self.prefix}{self._serialno}-{mode_int}"
-            )
+        )
         self._data["lmo"] = LIBBI_MODE_NAMES[mode_int]
         return True
 
@@ -184,8 +201,8 @@ class Libbi(BaseDevice):
         await self._connection.put(
             f"/api/AccountAccess/LibbiMode?chargeFromGrid={charge_from_grid}&serialNo={self._serialno}",
             oauth=True
-            )
-        self._data["charge_from_grid"] = charge_from_grid
+        )
+        self._extra_data["charge_from_grid"] = charge_from_grid
         return True
 
     async def set_priority(self, priority):
@@ -215,6 +232,7 @@ class Libbi(BaseDevice):
         ret = ret + f"Grid: {self.power_grid}W\n"
         ret = ret + f"Status : {self.status}\n"
         ret = ret + f"Local Mode : {self.local_mode}\n"
+        ret = ret + f"Charge from Grid: {self.charge_from_grid}\n"
         ret = ret + f"CT 1 {self.ct1.name} {self.ct1.power}W phase {self.ct1.phase}\n"
         ret = ret + f"CT 2 {self.ct2.name} {self.ct2.power}W phase {self.ct2.phase}\n"
         ret = ret + f"CT 3 {self.ct3.name} {self.ct3.power}W phase {self.ct3.phase}\n"
