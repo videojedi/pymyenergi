@@ -28,7 +28,7 @@ STATES = { 0:'Off',
            252:'FW Upgrade (ARM)' }
 
 LIBBI_MODES = ["Stopped","Normal","","","","Export"]
-LIBBI_MODE_NAMES = ["STOP", "BALANCE","","","","EXPORT"]
+LIBBI_MODE_NAMES = ["STOP", "BALANCE","","","","DRAIN"]
 
 class Libbi(BaseDevice):
     """Libbi Client for myenergi API."""
