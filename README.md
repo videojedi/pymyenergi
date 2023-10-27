@@ -33,20 +33,22 @@ Conifguration file will be searched for in ./.myenergi.cfg and ~/.myenergi.cfg
 
 ```
 [hub]
-serial=12345678
-password=yourpassword
+serial=yourHubSerialNumber
+password=yourAPIkey
+app_email=yourEmail
+app_password=yourAppPassword
 ```
 
 ### CLI usage
 
 ```
 usage: myenergi [-h] [-u USERNAME] [-p PASSWORD] [-d] [-j]
-                {list,overview,zappi,eddi,harvi} ...
+                {list,overview,zappi,eddi,harvi,libbi} ...
 
 myenergi CLI.
 
 positional arguments:
-  {list,overview,zappi,eddi,harvi}
+  {list,overview,zappi,eddi,harvi,libbi}
                         sub-command help
     list                list devices
     overview            show overview
@@ -152,6 +154,8 @@ Very early and basic support of Libbi.
 - Battery in and out energy
 - Gets and sets the current status
 - Change priority of Libbi
+- Charge from Grid
+- Export to Grid
 
 cli examples:
 ```
