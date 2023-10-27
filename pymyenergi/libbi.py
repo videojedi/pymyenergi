@@ -11,6 +11,7 @@ MODE_EXPORT = 5
 MODE_NORMAL = 1
 MODE_STOPPED = 0
 
+
 STATES = { 0:'Off',
            1:'On',
            2:'Battery Full',
@@ -18,9 +19,10 @@ STATES = { 0:'Off',
            5:'Charging',
            6:'Discharging',
            7:'Duration Charging',
+           12:'Charging and Discharging?',
            101:'Idle?',
-           102:'102',
-           104:'Battery Full?',
+           102:'Discharging?',
+           104:'Idle and Battery Full',
            151:'FW Upgrade (ARM)',
            156:'FW Upgrade (DSP)',
            234:'Calibration Charge',
@@ -189,7 +191,7 @@ class Libbi(BaseDevice):
         """Stopped or normal mode or export to Grid"""
         print("current mode", self._data["lmo"])
         mode_int = LIBBI_MODES.index(mode.capitalize())
-        print(mode_int)
+
         await self._connection.get(
             f"/cgi-libbi-mode-{self.prefix}{self._serialno}-{mode_int}"
         )
