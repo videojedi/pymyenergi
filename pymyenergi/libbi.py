@@ -141,6 +141,11 @@ class Libbi(BaseDevice):
     def priority(self):
         """Current priority"""
         return self._data.get("pri")
+    
+    @property
+    def batteryDischargingBoost(self):
+        """Battery discharging to grid status"""
+        return self._data.get("batteryDischargingBoost")
 
     @property
     def battery_size(self):
@@ -235,6 +240,7 @@ class Libbi(BaseDevice):
         ret = ret + f"Status : {self.status}\n"
         ret = ret + f"Local Mode : {self.local_mode}\n"
         ret = ret + f"Charge from Grid: {self.charge_from_grid}\n"
+        ret = ret + f"Battery discharge to Grid: {self.batteryDischargingBoost}\n"
         ret = ret + f"CT 1 {self.ct1.name} {self.ct1.power}W phase {self.ct1.phase}\n"
         ret = ret + f"CT 2 {self.ct2.name} {self.ct2.power}W phase {self.ct2.phase}\n"
         ret = ret + f"CT 3 {self.ct3.name} {self.ct3.power}W phase {self.ct3.phase}\n"
