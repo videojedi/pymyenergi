@@ -31,6 +31,7 @@ async def main(args):
     app_email = args.app_email or input("App email: ")
     app_password = args.app_password or getpass(prompt="App password: ")
     conn = Connection(username, password, app_password, app_email)
+    await conn.discoverLocations()
     if args.debug:
         logging.root.setLevel(logging.DEBUG)
     client = MyenergiClient(conn)
@@ -95,8 +96,13 @@ async def main(args):
                     await device.set_operating_mode(args.arg[0])
                     print(f"Operating mode was set to {args.arg[0].capitalize()}")
                 elif args.action == "chargefromgrid" and args.command == LIBBI:
-                    if len(args.arg) < 1 or args.arg[0].capitalize() not in ["True", "False"]:
-                        sys.exit(f"A mode must be specifed, one of true or false")
+                    if len(args.arg) < 1 or args.arg[0].capitalize() not in [
+                        "True",
+                        "False",
+                        "Enable",
+                        "Disable",
+                    ]:
+                        sys.exit(f"A mode must be specifed, one of enable or disable")
                     await device.set_charge_from_grid(args.arg[0])
                     print(f"Charge from grid was set to {args.arg[0].capitalize()}")
                 elif args.action == "mingreen" and args.command == ZAPPI:
@@ -229,7 +235,9 @@ def cli():
         LIBBI, help="use libbi --help for available commands"
     )
     subparser_libbi.add_argument("-s", "--serial", dest="serial", default=None)
-    subparser_libbi.add_argument("action", choices=["show","mode","priority","energy","chargefromgrid"])
+    subparser_libbi.add_argument(
+        "action", choices=["show", "mode", "priority", "energy", "chargefromgrid"]
+    )
     subparser_libbi.add_argument("arg", nargs="*")
 
     args = parser.parse_args()
